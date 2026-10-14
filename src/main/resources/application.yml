@@ -15,6 +15,9 @@ spring:
   sql:
     init:
       mode: always
+      # 必须显式指定。默认取平台字符集，在中文 Windows 上是 GBK，
+      # 而 schema.sql / data.sql 都是 UTF-8 → 中文数据会以乱码入库（华东 → 鍗庝笢）。
+      encoding: UTF-8
 
   ai:
     openai:
