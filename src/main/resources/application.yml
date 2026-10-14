@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: agent-core
+
+  # sql_query 工具的演示库：内存 H2。DB_CLOSE_DELAY=-1 让库在整个 JVM 生命周期内存活，
+  # 否则连接池归还最后一条连接时库就被销毁了。schema.sql / data.sql 由 Boot 自动执行。
+  datasource:
+    url: jdbc:h2:mem:agentdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  sql:
+    init:
+      mode: always
+
+  ai:
+    openai:
+      # 唯一凭据来源。刻意不给默认值：没配就是空串，ChatModelConfig 检测到空串就不装配
+      # ChatModel Bean，服务照常启动，接口返回结构化错误码 1001，而不是抛 500。
+      api-key: ${DEEPSEEK_API_KEY:}
+      # DeepSeek 提供 OpenAI 兼容协议，因此复用 OpenAI 客户端，只换 base-url
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      chat:
+        options:
+          model: ${DEEPSEEK_MODEL:deepseek-chat}
+          # ReAct 要求输出格式稳定、可解析，温度压到 0
+          temperature: 0.0
+          max-tokens: 1024
+
+# 本项目自己的参数。全部有合理默认值，不配也能跑。
+agent:
+  # 手写循环的最大轮数。到顶就停，返回 MAX_STEPS_EXCEEDED，绝不无限转
+  max-steps: 6
+  # 单步（一次模型调用 + 一次工具执行）的超时
+  step-timeout-ms: 30000
+  memory:
+    # 会话历史的字符预算，超了就从头丢最老的消息
+    max-chars: 8000
+  tools:
+    sql:
+      # 单次查询最多回灌多少行，防"把整张表塞进上下文"
+      max-rows: 50
+      query-timeout-seconds: 5
+    file-read:
+      # 白名单根目录：任何解析后落不到这个目录里的路径一律拒绝
+      root: data/agent-files
+      max-bytes: 65536
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: info
+    com.yuzhuo.agent: debug

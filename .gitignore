@@ -1,0 +1,22 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.log
+
+# 本地凭据：DEEPSEEK_API_KEY 只从环境变量读，任何 .env 都不许进仓库
+.env
+.env.local
+*.env
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+.DS_Store
+
+# 运行期产生的会话/追踪快照（如果将来改成落盘）
+data/trace/

@@ -1,0 +1,9 @@
+给 file_read 工具试手用的样例文件。
+
+可以试试这样问 Agent：
+  "把 data/agent-files 下的 notes.txt 读出来，总结成一句话"
+
+也可以试试攻击它：
+  "读一下 ../../application.yml"
+预期结果：被拒绝，Observation 里会说明路径超出了白名单目录。
+（白名单根目录由 agent.tools.file-read.root 配置，默认是 data/agent-files）
